@@ -11,3 +11,5 @@ DerivedData/
 *.log
 *.txt
 ThermalHelper
+Sources/Pulse/Resources/AppIconBase.png
+Sources/Pulse/Resources/AppIcon.iconset/

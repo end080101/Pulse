@@ -8,6 +8,8 @@
     <string>com.user.Pulse</string>
     <key>CFBundleName</key>
     <string>Pulse</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
 	<key>CFBundleShortVersionString</key>

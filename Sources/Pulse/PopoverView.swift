@@ -101,7 +101,7 @@ struct PopoverView: View {
                 }) {
                     VStack(spacing: 8) {
                         VStack(spacing: 4) {
-                            NetworkInfoRow(label: "SSID", value: DisplayFormatters.wifiLabel(monitor.snapshot.network.wifiSSID), icon: "wifi", fontSize: sizeBody)
+                            NetworkInfoRow(label: "SSID", value: ssidDisplayValue, icon: "wifi", fontSize: sizeBody)
                             NetworkInfoRow(label: "PUBLIC", value: monitor.snapshot.network.publicIP, icon: "globe", fontSize: sizeBody)
                             NetworkInfoRow(label: "IPv4", value: monitor.snapshot.network.localIPv4, icon: "network", fontSize: sizeBody)
                             NetworkInfoRow(label: "IPv6", value: monitor.snapshot.network.localIPv6.isEmpty ? "Unavailable" : monitor.snapshot.network.localIPv6, icon: "network.badge.shield.half.filled", fontSize: sizeBody)
@@ -361,6 +361,19 @@ struct BentoHeader: View {
             return String(format: "%dd %02dh", days, hours)
         }
         return String(format: "%dh %02dm", hours, minutes)
+    }
+}
+
+private extension PopoverView {
+    var ssidDisplayValue: String {
+        switch monitor.snapshot.network.wifiSSID {
+        case "Enable Location Access":
+            return "Enable Location Access"
+        case "Wi-Fi Name Unavailable":
+            return "Wi-Fi Name Unavailable"
+        default:
+            return DisplayFormatters.wifiLabel(monitor.snapshot.network.wifiSSID)
+        }
     }
 }
 

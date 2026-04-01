@@ -46,6 +46,11 @@ final class NetworkMonitor {
     func refreshWiFiName(current: NetworkStats) -> NetworkStats {
         var next = current
 
+        if !LocationPermissionManager.canReadSSID {
+            next.wifiSSID = "Enable Location Access"
+            return next
+        }
+
         refreshPrimaryInterfaceNameIfNeeded(force: true)
 
         if let interfaceName = primaryInterfaceName,
@@ -78,8 +83,10 @@ final class NetworkMonitor {
             }
         }
 
-        if let ssid = ioregSSID(), !ssid.isEmpty, ssid != "<redacted>" {
+        if let ssid = ioregSSID(), !ssid.isEmpty, ssid != "<redacted>", ssid != "<SSID Redacted>" {
             next.wifiSSID = ssid
+        } else {
+            next.wifiSSID = "Wi-Fi Name Unavailable"
         }
 
         return next

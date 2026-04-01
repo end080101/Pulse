@@ -25,6 +25,7 @@ mkdir -p "${RESOURCES}"
 echo "Step 4: Copying files..."
 cp .build/release/Pulse "${MACOS}/${APP_NAME}"
 cp ThermalHelper "${RESOURCES}/"
+cp Sources/Pulse/Resources/AppIcon.icns "${RESOURCES}/"
 cp Info.plist "${CONTENTS}/"
 cp -R .build/release/Pulse_Pulse.bundle "${RESOURCES}/"
 
