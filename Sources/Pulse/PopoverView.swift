@@ -104,6 +104,7 @@ struct PopoverView: View {
                             NetworkInfoRow(label: "SSID", value: DisplayFormatters.wifiLabel(monitor.snapshot.network.wifiSSID), icon: "wifi", fontSize: sizeBody)
                             NetworkInfoRow(label: "PUBLIC", value: monitor.snapshot.network.publicIP, icon: "globe", fontSize: sizeBody)
                             NetworkInfoRow(label: "IPv4", value: monitor.snapshot.network.localIPv4, icon: "network", fontSize: sizeBody)
+                            NetworkInfoRow(label: "IPv6", value: monitor.snapshot.network.localIPv6.isEmpty ? "Unavailable" : monitor.snapshot.network.localIPv6, icon: "network.badge.shield.half.filled", fontSize: sizeBody)
                         }
                         Divider().opacity(0.05)
                         HStack(spacing: 12) {

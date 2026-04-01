@@ -51,39 +51,13 @@ func getPower() -> Double {
     return 0.0
 }
 
-func getSSID() -> String {
-    let nodes = ["AppleBCMWLANSkywalkInterface", "AppleBCMWLANCore", "Apple80211Interface"]
-    for node in nodes {
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/sbin/ioreg")
-        task.arguments = ["-n", node, "-r", "-l"]
-        let pipe = Pipe(); task.standardOutput = pipe
-        try? task.run(); task.waitUntilExit()
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        if let output = String(data: data, encoding: .utf8) {
-            let lines = output.components(separatedBy: .newlines)
-            for line in lines where line.contains("IO80211SSID") {
-                if let range = line.range(of: " = \"") {
-                    let ssid = line[range.upperBound...].replacingOccurrences(of: "\"", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
-                    if !ssid.isEmpty && ssid != "<redacted>" { return ssid }
-                }
-            }
-        }
-    }
-    return "No WiFi"
-}
-
 // Main Loop
-var count = 0
 while true {
     let t = getTemp()
     let p = getPower()
-    var s = ""
-    if count % 5 == 0 { s = getSSID() }
-    
-    print("DATA|TEMP:\(t)|PACKAGE_MW:\(p)\(s.isEmpty ? "" : "|SSID:\(s)")")
+
+    print("DATA|TEMP:\(t)|PACKAGE_MW:\(p)")
     fflush(stdout)
-    
-    count += 1
+
     Thread.sleep(forTimeInterval: 2.0)
 }

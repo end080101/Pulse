@@ -74,7 +74,12 @@ final class NetworkMonitor {
                 next.wifiSSID = output
                     .replacingOccurrences(of: "Current Wi-Fi Network: ", with: "")
                     .trimmingCharacters(in: .whitespacesAndNewlines)
+                return next
             }
+        }
+
+        if let ssid = ioregSSID(), !ssid.isEmpty, ssid != "<redacted>" {
+            next.wifiSSID = ssid
         }
 
         return next
@@ -214,5 +219,35 @@ final class NetworkMonitor {
         }
 
         return primaryInterfaceName
+    }
+
+    private func ioregSSID() -> String? {
+        let nodes = ["AppleBCMWLANSkywalkInterface", "AppleBCMWLANCore", "Apple80211Interface"]
+
+        for node in nodes {
+            let task = Process()
+            task.executableURL = URL(fileURLWithPath: "/usr/sbin/ioreg")
+            task.arguments = ["-n", node, "-r", "-l"]
+            let pipe = Pipe()
+            task.standardOutput = pipe
+
+            guard (try? task.run()) != nil else { continue }
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            task.waitUntilExit()
+
+            guard let output = String(data: data, encoding: .utf8) else { continue }
+            for line in output.components(separatedBy: .newlines) where line.contains("IO80211SSID") {
+                if let range = line.range(of: " = \"") {
+                    let ssid = line[range.upperBound...]
+                        .replacingOccurrences(of: "\"", with: "")
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !ssid.isEmpty {
+                        return ssid
+                    }
+                }
+            }
+        }
+
+        return nil
     }
 }

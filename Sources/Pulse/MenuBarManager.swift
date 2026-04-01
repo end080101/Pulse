@@ -10,7 +10,6 @@ class MenuBarManager: NSObject {
     private var cancellables = Set<AnyCancellable>()
     private var animationTimer: Timer?
     private var gifFrames: [NSImage] = []
-    private var hostingView: NSHostingView<StatusIconView>?
     private var processResizeWorkItem: DispatchWorkItem?
     
     init(monitor: SystemMonitor) {
@@ -27,27 +26,17 @@ class MenuBarManager: NSObject {
         if let button = statusItem.button {
             button.action = #selector(togglePopover)
             button.target = self
+            button.imagePosition = .imageOnly
+            button.imageScaling = .scaleProportionallyDown
             
             // Set a base image to ensure the button has existence even before timer fires
             if let firstFrame = gifFrames.first {
                 let aspect = firstFrame.size.width / firstFrame.size.height
                 statusItem.length = NSStatusBar.system.thickness * aspect
+                button.image = firstFrame
             } else {
                 statusItem.length = 24
             }
-            
-            let hv = NSHostingView(rootView: StatusIconView(image: gifFrames.first))
-            button.addSubview(hv)
-            
-            hv.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                hv.leadingAnchor.constraint(equalTo: button.leadingAnchor),
-                hv.trailingAnchor.constraint(equalTo: button.trailingAnchor),
-                hv.topAnchor.constraint(equalTo: button.topAnchor),
-                hv.bottomAnchor.constraint(equalTo: button.bottomAnchor)
-            ])
-            
-            self.hostingView = hv
             updateLogo(monitor.logoType)
         }
     }
@@ -111,7 +100,7 @@ class MenuBarManager: NSObject {
                 let targetWidth = barHeight * aspect
                 
                 self.statusItem.length = targetWidth
-                self.hostingView?.rootView = StatusIconView(image: img)
+                self.statusItem.button?.image = img
                 
                 gifIdx = (gifIdx + 1) % self.gifFrames.count
                 return
@@ -153,7 +142,7 @@ class MenuBarManager: NSObject {
             finalImg.unlockFocus()
             finalImg.isTemplate = true
             self.statusItem.length = baseSize.width
-            self.hostingView?.rootView = StatusIconView(image: finalImg)
+            self.statusItem.button?.image = finalImg
         }
     }
     
@@ -215,20 +204,5 @@ class MenuBarManager: NSObject {
                 popover.contentViewController?.view.window?.makeKey()
             }
         }
-    }
-}
-
-struct StatusIconView: View {
-    let image: NSImage?
-    var body: some View {
-        ZStack {
-            if let img = image {
-                Image(nsImage: img)
-                    .renderingMode(.template) // Ensure template behavior in SwiftUI
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
