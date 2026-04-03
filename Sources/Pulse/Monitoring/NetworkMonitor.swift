@@ -21,8 +21,14 @@ final class NetworkMonitor {
 
         var next = current
         if prevInBytes != 0 && interval > 0 {
-            let down = Double(counters.inBytes - prevInBytes) / interval / 1024
-            let up = Double(counters.outBytes - prevOutBytes) / interval / 1024
+            let inDelta = counters.inBytes >= prevInBytes
+                ? counters.inBytes &- prevInBytes
+                : counters.inBytes
+            let outDelta = counters.outBytes >= prevOutBytes
+                ? counters.outBytes &- prevOutBytes
+                : counters.outBytes
+            let down = Double(inDelta) / interval / 1024
+            let up = Double(outDelta) / interval / 1024
             next.downKBps = down
             next.upKBps = up
             next.downHistory.append(down)
@@ -45,11 +51,6 @@ final class NetworkMonitor {
 
     func refreshWiFiName(current: NetworkStats) -> NetworkStats {
         var next = current
-
-        if !LocationPermissionManager.canReadSSID {
-            next.wifiSSID = "Enable Location Access"
-            return next
-        }
 
         refreshPrimaryInterfaceNameIfNeeded(force: true)
 
@@ -83,10 +84,8 @@ final class NetworkMonitor {
             }
         }
 
-        if let ssid = ioregSSID(), !ssid.isEmpty, ssid != "<redacted>", ssid != "<SSID Redacted>" {
+        if let ssid = ioregSSID(), !ssid.isEmpty, ssid != "<redacted>" {
             next.wifiSSID = ssid
-        } else {
-            next.wifiSSID = "Wi-Fi Name Unavailable"
         }
 
         return next

@@ -42,17 +42,22 @@ class MenuBarManager: NSObject {
     }
     
     private func loadGifFrames() {
-        var url = Bundle.main.url(forResource: "icon", withExtension: "gif", subdirectory: "Pulse_Pulse.bundle")
-
-        if url == nil, let resPath = Bundle.main.resourcePath {
-            let path = "\(resPath)/Pulse_Pulse.bundle/icon.gif"
-            if FileManager.default.fileExists(atPath: path) {
-                url = URL(fileURLWithPath: path)
-            }
-        }
-
+        // Try Bundle.module first (SPM default)
+        var url = Bundle.module.url(forResource: "icon", withExtension: "gif")
+        
         if url == nil {
-            url = Bundle.module.url(forResource: "icon", withExtension: "gif")
+            // Fallback for packaged app structure
+            url = Bundle.main.url(forResource: "icon", withExtension: "gif", subdirectory: "Pulse_Pulse.bundle")
+        }
+        
+        if url == nil {
+            // Direct path fallback
+            if let resPath = Bundle.main.resourcePath {
+                let path = "\(resPath)/Pulse_Pulse.bundle/icon.gif"
+                if FileManager.default.fileExists(atPath: path) {
+                    url = URL(fileURLWithPath: path)
+                }
+            }
         }
         
         guard let finalUrl = url else {

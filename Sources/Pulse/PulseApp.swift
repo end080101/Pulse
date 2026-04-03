@@ -15,13 +15,11 @@ struct PulseApp: App {
 class AppDelegate: NSObject, NSApplicationDelegate {
     var monitor: SystemMonitor!
     var menuBarManager: MenuBarManager!
-    private let locationPermissionManager = LocationPermissionManager()
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         monitor = SystemMonitor()
         menuBarManager = MenuBarManager(monitor: monitor)
         
         NSApp.setActivationPolicy(.accessory)
-        locationPermissionManager.requestIfNeeded()
     }
 }
