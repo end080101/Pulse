@@ -29,7 +29,7 @@ cp Info.plist "${CONTENTS}/"
 cp -R .build/release/Pulse_Pulse.bundle "${RESOURCES}/"
 
 # Add static icon from GIF
-python3 - <<'PYEOF'
+RESOURCES_DIR="${RESOURCES}" python3 - <<'PYEOF'
 from PIL import Image, ImageSequence
 import os, shutil
 
@@ -49,7 +49,8 @@ for s in [16, 32, 64, 128, 256, 512]:
         resized_2x.save(f"{iconset_dir}/icon_{s}x{s}@2x.png")
 
 os.system("iconutil -c icns /tmp/Pulse.iconset -o Pulse.icns")
-shutil.copy("Pulse.icns", f"{RESOURCES}/Pulse.icns")
+res_dir = os.environ["RESOURCES_DIR"]
+shutil.copy("Pulse.icns", f"{res_dir}/Pulse.icns")
 PYEOF
 
 echo "Step 5: Setting permissions..."
