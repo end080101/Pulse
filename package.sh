@@ -28,9 +28,9 @@ cp ThermalHelper "${RESOURCES}/"
 cp Info.plist "${CONTENTS}/"
 cp -R .build/release/Pulse_Pulse.bundle "${RESOURCES}/"
 
-# Add static icon from GIF
+# Add static icon from GIF (white rounded bg, black rabbit, 80% content)
 RESOURCES_DIR="${RESOURCES}" python3 - <<'PYEOF'
-from PIL import Image, ImageSequence
+from PIL import Image, ImageDraw, ImageSequence
 import os, shutil
 
 gif_path = "Sources/Pulse/Resources/icon.gif"
@@ -41,11 +41,30 @@ img = Image.open(gif_path).convert("RGBA")
 frames = list(ImageSequence.Iterator(img))
 mid = frames[len(frames) // 2]
 
+size = 1024
+canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+radius = int(size * 0.22)
+draw = ImageDraw.Draw(canvas)
+draw.rounded_rectangle([0, 0, size - 1, size - 1], radius=radius, fill=(255, 255, 255, 255))
+
+rabbit_size = int(size * 0.80)
+rabbit = mid.resize((rabbit_size, rabbit_size), Image.LANCZOS).convert("RGBA")
+
+px = rabbit.load()
+for y in range(rabbit.size[1]):
+    for x in range(rabbit.size[0]):
+        r, g, b, a = px[x, y]
+        if a > 0 and not (r > 200 and g > 200 and b > 200):
+            px[x, y] = (0, 0, 0, a)
+
+offset = ((size - rabbit.size[0]) // 2, (size - rabbit.size[1]) // 2)
+canvas.paste(rabbit, offset, rabbit)
+
 for s in [16, 32, 64, 128, 256, 512]:
-    resized = mid.resize((s, s), Image.LANCZOS)
+    resized = canvas.resize((s, s), Image.LANCZOS)
     resized.save(f"{iconset_dir}/icon_{s}x{s}.png")
     if s <= 256:
-        resized_2x = mid.resize((s*2, s*2), Image.LANCZOS)
+        resized_2x = canvas.resize((s * 2, s * 2), Image.LANCZOS)
         resized_2x.save(f"{iconset_dir}/icon_{s}x{s}@2x.png")
 
 os.system("iconutil -c icns /tmp/Pulse.iconset -o Pulse.icns")
