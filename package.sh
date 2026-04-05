@@ -28,6 +28,30 @@ cp ThermalHelper "${RESOURCES}/"
 cp Info.plist "${CONTENTS}/"
 cp -R .build/release/Pulse_Pulse.bundle "${RESOURCES}/"
 
+# Add static icon from GIF
+python3 - <<'PYEOF'
+from PIL import Image, ImageSequence
+import os, shutil
+
+gif_path = "Sources/Pulse/Resources/icon.gif"
+iconset_dir = "/tmp/Pulse.iconset"
+os.makedirs(iconset_dir, exist_ok=True)
+
+img = Image.open(gif_path).convert("RGBA")
+frames = list(ImageSequence.Iterator(img))
+mid = frames[len(frames) // 2]
+
+for s in [16, 32, 64, 128, 256, 512]:
+    resized = mid.resize((s, s), Image.LANCZOS)
+    resized.save(f"{iconset_dir}/icon_{s}x{s}.png")
+    if s <= 256:
+        resized_2x = mid.resize((s*2, s*2), Image.LANCZOS)
+        resized_2x.save(f"{iconset_dir}/icon_{s}x{s}@2x.png")
+
+os.system("iconutil -c icns /tmp/Pulse.iconset -o Pulse.icns")
+shutil.copy("Pulse.icns", f"{RESOURCES}/Pulse.icns")
+PYEOF
+
 echo "Step 5: Setting permissions..."
 chmod +x "${MACOS}/${APP_NAME}"
 chmod +x "${RESOURCES}/ThermalHelper"

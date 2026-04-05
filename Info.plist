@@ -20,6 +20,8 @@
     <true/>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>CFBundleIconFile</key>
+    <string>Pulse</string>
     <key>NSLocationUsageDescription</key>
     <string>Pulse requires location access to display your current Wi-Fi network name (SSID).</string>
     <key>NSLocationWhenInUseUsageDescription</key>
